@@ -1,33 +1,34 @@
 import fetch from "node-fetch";
 
 export default async function handler(req, res) {
-  // Sta CORS toe
-  res.setHeader("Access-Control-Allow-Origin", "*"); // of specificeer alleen leitstellenspiel
+  // ✅ CORS headers
+  res.setHeader("Access-Control-Allow-Origin", "https://www.leitstellenspiel.de"); // of "*" voor alle origins
   res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
 
-  // Handle preflight OPTIONS request
+  // Preflight request
   if (req.method === "OPTIONS") {
     return res.status(200).end();
   }
 
   if (req.method !== "POST") {
-    return res.status(405).send("Method Not Allowed");
+    return res.status(405).json({ error: "Method Not Allowed" });
   }
 
   const payload = req.body;
 
   try {
-    const response = await fetch(process.env.DISCORD_TOKEN, {
+    const discordResponse = await fetch(process.env.DISCORD_TOKEN, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload)
+      body: JSON.stringify(payload),
     });
 
-    if (!response.ok) throw new Error("Discord API fout");
-    res.status(200).json({ success: true });
+    if (!discordResponse.ok) throw new Error("Discord API fout");
+
+    return res.status(200).json({ success: true });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ success: false, error: err.message });
+    return res.status(500).json({ success: false, error: err.message });
   }
 }
