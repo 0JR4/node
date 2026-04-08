@@ -1,10 +1,10 @@
 export default async function handler(req, res) {
   // ✅ CORS headers
-  res.setHeader("Access-Control-Allow-Origin", "https://www.leitstellenspiel.de"); // of "*" tijdelijk
+  res.setHeader("Access-Control-Allow-Origin", "*"); // tijdelijk "*" voor testen
   res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
 
-  // OPTIONS preflight
+  // OPTIONS preflight antwoord
   if (req.method === "OPTIONS") {
     return res.status(200).end();
   }
@@ -14,7 +14,8 @@ export default async function handler(req, res) {
   }
 
   try {
-    const discordResponse = await fetch(process.env.DISCORD_TOKEN, {
+    // Stuur naar Discord webhook
+    const discordResponse = await fetch(process.env.DISCORD_WEBHOOK, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(req.body),
